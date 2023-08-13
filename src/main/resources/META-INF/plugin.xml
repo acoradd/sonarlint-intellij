@@ -330,5 +330,40 @@
                 description="Configure SonarLint"
                 icon="org.sonarlint.intellij.SonarLintIcons.TOOLS">
         </action>
+
+        <action id="SonarLint.toolwindow.filter.severity.Blocker"
+                class="org.sonarlint.intellij.actions.filters.severity.FilterSeverityBlockerAction"
+                text="Display blockers issues"
+                description="Display blocker issues"
+                icon="org.sonarlint.intellij.SonarLintIcons.SEVERITY_BLOCKER">
+        </action>
+
+        <action id="SonarLint.toolwindow.filter.severity.Critical"
+                class="org.sonarlint.intellij.actions.filters.severity.FilterSeverityCriticalAction"
+                text="Display criticals issues"
+                description="Display criticals issues"
+                icon="org.sonarlint.intellij.SonarLintIcons.SEVERITY_CRITICAL">
+        </action>
+
+        <action id="SonarLint.toolwindow.filter.severity.Major"
+                class="org.sonarlint.intellij.actions.filters.severity.FilterSeverityMajorAction"
+                text="Display majors issues"
+                description="Display majors issues"
+                icon="org.sonarlint.intellij.SonarLintIcons.SEVERITY_MAJOR">
+        </action>
+
+        <action id="SonarLint.toolwindow.filter.severity.Minor"
+                class="org.sonarlint.intellij.actions.filters.severity.FilterSeverityMinorAction"
+                text="Display minors issues"
+                description="Display minors issues"
+                icon="org.sonarlint.intellij.SonarLintIcons.SEVERITY_MINOR">
+        </action>
+
+        <action id="SonarLint.toolwindow.filter.severity.Info"
+                class="org.sonarlint.intellij.actions.filters.severity.FilterSeverityInfoAction"
+                text="Display infos issues"
+                description="Display infos issues"
+                icon="org.sonarlint.intellij.SonarLintIcons.SEVERITY_INFO">
+        </action>
     </actions>
 </idea-plugin>

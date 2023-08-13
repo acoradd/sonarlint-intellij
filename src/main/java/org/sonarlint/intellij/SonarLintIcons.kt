@@ -75,15 +75,27 @@ object SonarLintIcons {
     val CONNECTED = getIcon("/images/connected.svg")
     @JvmField
     val CONNECTION_ERROR = getIcon("/images/io_error.svg")
+
     @JvmField
     val RESOLVED = getIcon("/images/resolved.svg")
 
+    @JvmField
+    val SEVERITY_BLOCKER = getIcon("/images/severity/blocker.svg")
+    @JvmField
+    val SEVERITY_CRITICAL = getIcon("/images/severity/critical.svg")
+    @JvmField
+    val SEVERITY_INFO = getIcon("/images/severity/info.svg")
+    @JvmField
+    val SEVERITY_MAJOR = getIcon("/images/severity/major.svg")
+    @JvmField
+    val SEVERITY_MINOR = getIcon("/images/severity/minor.svg")
+
     private val SEVERITY_ICONS = mapOf(
-        IssueSeverity.BLOCKER to getIcon("/images/severity/blocker.svg"),
-        IssueSeverity.CRITICAL to getIcon("/images/severity/critical.svg"),
-        IssueSeverity.INFO to getIcon("/images/severity/info.svg"),
-        IssueSeverity.MAJOR to getIcon("/images/severity/major.svg"),
-        IssueSeverity.MINOR to getIcon("/images/severity/minor.svg")
+        IssueSeverity.BLOCKER to SEVERITY_BLOCKER,
+        IssueSeverity.CRITICAL to SEVERITY_CRITICAL,
+        IssueSeverity.INFO to SEVERITY_INFO,
+        IssueSeverity.MAJOR to SEVERITY_MAJOR,
+        IssueSeverity.MINOR to SEVERITY_MINOR
     )
 
     private val IMPACT_ICONS = mapOf(

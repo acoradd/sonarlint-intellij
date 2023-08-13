@@ -38,6 +38,7 @@ import org.sonarlint.intellij.actions.MarkAsResolvedAction;
 import org.sonarlint.intellij.actions.ReviewSecurityHotspotAction;
 import org.sonarlint.intellij.actions.SonarLintToolWindow;
 import org.sonarlint.intellij.common.util.SonarLintUtils;
+import org.sonarlint.intellij.config.Settings;
 import org.sonarlint.intellij.config.SonarLintTextAttributes;
 import org.sonarlint.intellij.finding.LiveFinding;
 import org.sonarlint.intellij.finding.hotspot.LiveSecurityHotspot;
@@ -69,7 +70,7 @@ public class SonarExternalAnnotator extends ExternalAnnotator<SonarExternalAnnot
     var issueManager = getService(project, FindingsCache.class);
     var issues = issueManager.getIssuesForFile(file.getVirtualFile());
     issues.stream()
-      .filter(issue -> !issue.isResolved())
+      .filter(issue -> !issue.isResolved() && acceptByUser(project, issue))
       .forEach(issue -> {
         // reject ranges that are no longer valid. It probably means that they were deleted from the file, or the file was deleted
         var validTextRange = issue.getValidTextRange();
@@ -95,6 +96,13 @@ public class SonarExternalAnnotator extends ExternalAnnotator<SonarExternalAnnot
         .stream().filter(vulnerability -> !vulnerability.isResolved())
         .forEach(vulnerability -> addAnnotation(vulnerability, holder));
     }
+  }
+
+  private static boolean acceptByUser(@NotNull Project project, LiveIssue issue) {
+    if (issue.getUserSeverity() != null) {
+      return Settings.getSettingsFor(project).isSeverityDisplayed(issue.getUserSeverity());
+    }
+    return false;
   }
 
   private static boolean shouldSkip(@NotNull PsiFile file) {

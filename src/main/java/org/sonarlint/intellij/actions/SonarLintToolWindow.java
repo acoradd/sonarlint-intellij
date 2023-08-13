@@ -80,6 +80,10 @@ public final class SonarLintToolWindow implements ContentManagerListenerAdapter 
     updateTab(SonarLintToolWindowFactory.REPORT_TAB_TITLE, ReportPanel::clear);
   }
 
+  public void updateReportTab() {
+    updateTab(SonarLintToolWindowFactory.REPORT_TAB_TITLE, ReportPanel::updateModel);
+  }
+
   public void updateStatusAndApplyCurrentFiltering(String securityHotspotKey, HotspotStatus status) {
     var content = getSecurityHotspotContent();
     if (content != null) {

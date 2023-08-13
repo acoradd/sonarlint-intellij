@@ -175,6 +175,10 @@ public final class AnalysisSubmitter {
     onTheFlyFindingsHolder.clearCurrentFile();
   }
 
+  public void updateCurrentFileTab() {
+    onTheFlyFindingsHolder.updateCurrentFileTab();
+  }
+
   private static class ErrorAwareAnalysisCallback implements AnalysisCallback {
     private final AtomicBoolean errored = new AtomicBoolean(false);
 

@@ -38,6 +38,7 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import javax.annotation.Nullable;
 import javax.swing.Box;
 import javax.swing.JScrollPane;
 import javax.swing.event.TreeSelectionEvent;
@@ -74,6 +75,8 @@ public class ReportPanel extends SimpleToolWindowPanel implements Disposable {
   private JScrollPane findingsTreePane;
   private FindingDetailsPanel findingDetailsPanel;
 
+  private AnalysisResult lastAnalysisResult = null;
+
   public ReportPanel(Project project) {
     super(false, true);
     this.project = project;
@@ -91,13 +94,14 @@ public class ReportPanel extends SimpleToolWindowPanel implements Disposable {
     subscribeToEvents();
   }
 
-  public void updateFindings(AnalysisResult analysisResult) {
-    if (project.isDisposed()) {
+  public void updateFindings(@Nullable AnalysisResult analysisResult) {
+    if (project.isDisposed() || analysisResult == null) {
       return;
     }
+    this.lastAnalysisResult = analysisResult;
     lastAnalysisPanel.update(analysisResult.getAnalysisDate(), whatAnalyzed(analysisResult));
     var findings = analysisResult.getFindings();
-    treeBuilder.updateModel(findings.getIssuesPerFile(), "No issues found");
+    treeBuilder.updateModel(project, findings.getIssuesPerFile(), "No issues found");
     securityHotspotTreeBuilder.updateModel(findings.getSecurityHotspotsPerFile(), "No Security Hotspots found");
 
     disableEmptyDisplay(true);
@@ -229,6 +233,11 @@ public class ReportPanel extends SimpleToolWindowPanel implements Disposable {
     actionGroup.add(sonarLintActions.analyzeAllFiles());
     actionGroup.add(sonarLintActions.cancelAnalysis());
     actionGroup.add(sonarLintActions.configure());
+    actionGroup.add(ActionManager.getInstance().getAction("SonarLint.toolwindow.filter.severity.Blocker"));
+    actionGroup.add(ActionManager.getInstance().getAction("SonarLint.toolwindow.filter.severity.Critical"));
+    actionGroup.add(ActionManager.getInstance().getAction("SonarLint.toolwindow.filter.severity.Major"));
+    actionGroup.add(ActionManager.getInstance().getAction("SonarLint.toolwindow.filter.severity.Minor"));
+    actionGroup.add(ActionManager.getInstance().getAction("SonarLint.toolwindow.filter.severity.Info"));
     actionGroup.add(sonarLintActions.clearReport());
     return actionGroup;
   }
@@ -300,10 +309,17 @@ public class ReportPanel extends SimpleToolWindowPanel implements Disposable {
     if (project.isDisposed()) {
       return;
     }
+    lastAnalysisResult = null;
     lastAnalysisPanel.clear();
     treeBuilder.clear();
     securityHotspotTreeBuilder.clear();
     disableEmptyDisplay(false);
+  }
+
+  public void updateModel() {
+    if (!project.isDisposed() && this.lastAnalysisPanel != null) {
+      this.updateFindings(this.lastAnalysisResult);
+    }
   }
 
   private void expandTree() {

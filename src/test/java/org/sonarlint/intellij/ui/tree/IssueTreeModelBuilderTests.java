@@ -71,7 +71,7 @@ class IssueTreeModelBuilderTests {
     addFile(data, "file2", 2);
     addFile(data, "file3", 2);
 
-    treeBuilder.updateModel(data, "empty");
+    treeBuilder.updateModel(null, data, "empty");
     var first = treeBuilder.getNextIssue((AbstractNode) model.getRoot());
     assertThat(first).isNotNull();
 

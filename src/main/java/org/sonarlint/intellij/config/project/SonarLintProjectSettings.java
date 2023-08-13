@@ -28,6 +28,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 import org.sonarlint.intellij.config.global.ServerConnection;
+import org.sonarsource.sonarlint.core.commons.IssueSeverity;
 
 public final class SonarLintProjectSettings {
 
@@ -35,6 +36,7 @@ public final class SonarLintProjectSettings {
   private boolean analysisLogsEnabled = false;
   private boolean resolvedHotspotsEnabled = false;
   private Map<String, String> additionalProperties = new LinkedHashMap<>();
+  private Map<IssueSeverity, Boolean> displaySeverity = new LinkedHashMap<>();
   private boolean bindingEnabled = false;
   // For backward compatibility
   @OptionTag("serverId")
@@ -42,6 +44,7 @@ public final class SonarLintProjectSettings {
   private String projectKey = null;
   private List<String> fileExclusions = new ArrayList<>();
   private boolean bindingSuggestionsEnabled = true;
+
 
   public boolean isVerboseEnabled() {
     return verboseEnabled;
@@ -66,6 +69,14 @@ public final class SonarLintProjectSettings {
 
   public void setAdditionalProperties(Map<String, String> additionalProperties) {
     this.additionalProperties = new LinkedHashMap<>(additionalProperties);
+  }
+
+  public Map<IssueSeverity, Boolean> getDisplaySeverity() {
+    return displaySeverity;
+  }
+
+  public void setDisplaySeverity(Map<IssueSeverity, Boolean> displaySeverity) {
+    this.displaySeverity = displaySeverity;
   }
 
   @CheckForNull
@@ -136,5 +147,13 @@ public final class SonarLintProjectSettings {
 
   public boolean isBindingSuggestionsEnabled() {
     return bindingSuggestionsEnabled;
+  }
+
+  public boolean isSeverityDisplayed(IssueSeverity severity) {
+    return this.displaySeverity.getOrDefault(severity, true);
+  }
+
+  public void setSeverityDisplayed(IssueSeverity severity, boolean display) {
+    this.displaySeverity.put(severity, display);
   }
 }

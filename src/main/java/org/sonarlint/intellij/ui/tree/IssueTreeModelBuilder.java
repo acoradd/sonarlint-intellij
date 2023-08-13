@@ -35,8 +35,10 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.swing.tree.DefaultTreeModel;
 import org.sonarlint.intellij.common.util.SonarLintUtils;
+import org.sonarlint.intellij.config.Settings;
 import org.sonarlint.intellij.editor.CodeAnalyzerRestarter;
 import org.sonarlint.intellij.finding.issue.LiveIssue;
 import org.sonarlint.intellij.ui.nodes.AbstractNode;
@@ -94,10 +96,10 @@ public class IssueTreeModelBuilder implements FindingTreeModelBuilder {
   }
 
   public void clear() {
-    updateModel(Collections.emptyMap(), "No analysis done");
+    updateModel(null, Collections.emptyMap(), "No analysis done");
   }
 
-  public void updateModel(Map<VirtualFile, Collection<LiveIssue>> map, String emptyText) {
+  public void updateModel(@Nullable Project project, Map<VirtualFile, Collection<LiveIssue>> map, String emptyText) {
     latestIssues = map;
     summary.setEmptyText(emptyText);
 
@@ -106,7 +108,7 @@ public class IssueTreeModelBuilder implements FindingTreeModelBuilder {
     toRemove.forEach(this::removeFile);
 
     for (var e : map.entrySet()) {
-      setFileIssues(e.getKey(), e.getValue());
+      setFileIssues(project, e.getKey(), e.getValue());
     }
 
     model.nodeChanged(summary);
@@ -119,18 +121,18 @@ public class IssueTreeModelBuilder implements FindingTreeModelBuilder {
   }
 
   public void refreshModel(Project project) {
-    updateModel(latestIssues, summary.getEmptyText());
+    updateModel(project, latestIssues, summary.getEmptyText());
     var fileList = new HashSet<>(latestIssues.keySet());
     SonarLintUtils.getService(project, CodeAnalyzerRestarter.class).refreshFiles(fileList);
   }
 
-  private void setFileIssues(VirtualFile file, Iterable<LiveIssue> issues) {
+  private void setFileIssues(@Nullable Project project, VirtualFile file, Iterable<LiveIssue> issues) {
     if (!accept(file)) {
       removeFile(file);
       return;
     }
 
-    var filtered = filter(issues);
+    var filtered = filter(project, issues);
     if (filtered.isEmpty()) {
       removeFile(file);
       return;
@@ -186,14 +188,22 @@ public class IssueTreeModelBuilder implements FindingTreeModelBuilder {
     }
   }
 
-  private List<LiveIssue> filter(Iterable<LiveIssue> issues) {
+  private List<LiveIssue> filter(@Nullable Project project, Iterable<LiveIssue> issues) {
     return StreamSupport.stream(issues.spliterator(), false)
+      .filter(liveIssue -> acceptByUser(project, liveIssue))
       .filter(this::accept)
       .collect(Collectors.toList());
   }
 
   private boolean accept(LiveIssue issue) {
     return (!issue.isResolved() && issue.isValid()) || includeLocallyResolvedIssues;
+  }
+
+  private static boolean acceptByUser(@Nullable Project project, LiveIssue issue) {
+    if (project != null && issue.getUserSeverity() != null) {
+      return Settings.getSettingsFor(project).isSeverityDisplayed(issue.getUserSeverity());
+    }
+    return false;
   }
 
   private static boolean accept(VirtualFile file) {
@@ -231,13 +241,6 @@ public class IssueTreeModelBuilder implements FindingTreeModelBuilder {
         return isResolvedCompare;
       }
 
-      var introductionDateOrdering = Ordering.natural().reverse().nullsLast();
-      var dateCompare = introductionDateOrdering.compare(o1.getIntroductionDate(), o2.getIntroductionDate());
-
-      if (dateCompare != 0) {
-        return dateCompare;
-      }
-
       if (o1.getCleanCodeAttribute() != null && !o1.getImpacts().isEmpty()
         && o2.getCleanCodeAttribute() != null && !o2.getImpacts().isEmpty()) {
         var highestQualityImpactO1 = Collections.max(o1.getImpacts().entrySet(), Map.Entry.comparingByValue(Comparator.comparing(Enum::ordinal))).getValue();
@@ -252,6 +255,12 @@ public class IssueTreeModelBuilder implements FindingTreeModelBuilder {
           return severityCompare;
         }
       }
+        var introductionDateOrdering = Ordering.natural().reverse().nullsLast();
+        var dateCompare = introductionDateOrdering.compare(o1.getIntroductionDate(), o2.getIntroductionDate());
+
+        if (dateCompare != 0) {
+            return dateCompare;
+        }
 
       var r1 = o1.getRange();
       var r2 = o2.getRange();

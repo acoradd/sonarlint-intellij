@@ -101,6 +101,11 @@ public class CurrentFilePanel extends AbstractIssuesPanel {
       ActionManager.getInstance().getAction("SonarLint.toolwindow.Cancel"),
       SonarLintActions.getInstance().includeResolvedIssuesAction(),
       ActionManager.getInstance().getAction("SonarLint.toolwindow.Configure"),
+      ActionManager.getInstance().getAction("SonarLint.toolwindow.filter.severity.Blocker"),
+      ActionManager.getInstance().getAction("SonarLint.toolwindow.filter.severity.Critical"),
+      ActionManager.getInstance().getAction("SonarLint.toolwindow.filter.severity.Major"),
+      ActionManager.getInstance().getAction("SonarLint.toolwindow.filter.severity.Minor"),
+      ActionManager.getInstance().getAction("SonarLint.toolwindow.filter.severity.Info"),
       SonarLintActions.getInstance().clearIssues());
   }
 
@@ -130,10 +135,10 @@ public class CurrentFilePanel extends AbstractIssuesPanel {
   private void update(@Nullable VirtualFile file, Collection<LiveIssue> issues, String emptyText) {
     if (file == null) {
       disableEmptyDisplay(false);
-      treeBuilder.updateModel(Map.of(), emptyText);
+      treeBuilder.updateModel(project, Map.of(), emptyText);
     } else {
       disableEmptyDisplay(!issues.isEmpty());
-      treeBuilder.updateModel(Map.of(file, issues), emptyText);
+      treeBuilder.updateModel(project, Map.of(file, issues), emptyText);
     }
     expandTree();
     updateIcon(file, issues);

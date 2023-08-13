@@ -87,7 +87,7 @@ class OnTheFlyFindingsHolder(private val project: Project) : FileEditorManagerLi
         }
     }
 
-    private fun updateCurrentFileTab() {
+    fun updateCurrentFileTab() {
         if (!project.isDisposed) {
             getService(
                 project, SonarLintToolWindow::class.java
